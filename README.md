@@ -1,16 +1,13 @@
 # TensorFlow Image Classifier
-These python scripts help set up a dataset and create a simple TensorFlow Image Classier.
+These python scripts help set up a dataset and create a simple TensorFlow Image Classier. These scripts work best with an Nvida GPU.
 
 ## dataset_creator.py
-This script is used to create a dataset based on class of your choice. It uses the Bing image downloader package to search up the term and add relevant images to the class. 
-Further script options can be found in the global vars section.
+This script is used to create a dataset based on class of your choice. It uses the Bing image downloader package to search up the term and add relevant images to the class.
 
-### Usage
 ``` bash
+Usage
  $ python dataset_creator.py [class term]
-```
-### Example
-``` bash
+Example
  $ python dataset_creator.py apple
  $ python dataset_creator.py orange
  $ python dataset_creator.py cherry
@@ -19,17 +16,22 @@ Further script options can be found in the global vars section.
 ## clean_data.py
 This script is used to clean the dataset and prepare it for image classification. This will take the image dataset and split it into 80% training images and 20% testing images. All images will be renamed, organized, and turned into 500px square images for faster training. All images with issues will be sent to a separate junk folder.
 
-### Usage
 ``` bash
+Usage
  $ python clean_data.py [name of folder]
-```
-### Example
-``` bash
+Example
  $ python clean_data.py dataset
 ```
 
 ## create_CNN_model.py
-This script will create and test an image classfication model based on a custom Convolutional Neural Network (CNN) model. 
+This script will create and test an image classfication model based on a custom Convolutional Neural Network (CNN) model. It will output the modle in multiple useable forms as well as graphs of the traning the the confusiton matrix. The text file contains the class name of each output tensor in order of the tensor.
+
+``` bash
+Usage
+ $ python create_CNN_model.py [version]
+Example
+ $ python create_CNN_model.py 1.0
+```
 
 # Licence
 
