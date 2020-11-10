@@ -1,5 +1,5 @@
 # TensorFlow Image Classifier
-These python scripts help set up a dataset and create a simple TensorFlow Image Classier. These scripts work best with an Nvida GPU.
+These python scripts help set up a dataset and create a simple TensorFlow Image Classifier. These scripts work best with an Nvida GPU.
 
 ## dataset_creator.py
 This script is used to create a dataset based on class of your choice. It uses the Bing image downloader package to search up the term and add relevant images to the class.
