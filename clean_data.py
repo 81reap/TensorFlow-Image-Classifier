@@ -1,12 +1,13 @@
 # --------------------------------------------------------------------------- #
 # Author: Prayag Bhakar
 # Usage : 
-#  $ python3 clean_data.py [name of folder]
+#  $ python clean_data.py [name of folder]
 # --------------------------------------------------------------------------- #
 
 # --- Imports --- #
 import os
 import sys
+import argparse
 from PIL import Image
 from math import floor
 from tqdm import trange
@@ -14,18 +15,28 @@ from random import shuffle
 from shutil import rmtree, copyfile
 # --- Imports --- #
 
+# --- Grab Sys Args --- #
+parser = argparse.ArgumentParser(description='''This script is used to clean the dataset and prepare it for image classification. This will take the image dataset and split it into 80% training images and 20% testing images. All images will be renamed, organized, and turned into 500px square images for faster training. All images with issues will be sent to a separate junk folder.''')
+parser.add_argument('source', metavar='source', type=str, help='source folder')
+parser.add_argument('-s', '--size', help="Max size of square images", type=int, default=500)
+parser.add_argument('-t', '--train', help="Training percent", type=float, default=0.8)
+parser.add_argument('-tf', '--train_folder', help="Training Folder", type=str, default='train_dataset')
+parser.add_argument('-ef', '--eval_folder', help="Evaluation Folder", type=str, default='eval_dataset')
+args = parser.parse_args()
+# --- Grab Sys Args --- #
+
 # --- Global Vars --- #
 # get the percent cutoffs
-train_percent = 0.80
+train_percent = args.train
 eval_percent = 1 - train_percent
 
 # output square image px size
-edge = 500
+edge = parser.size
 
 # get all the different folder names
-src_folder = sys.argv[1]
-train_folder = "train_dataset"
-eval_folder = "eval_dataset"
+src_folder = args.source
+train_folder = args.train_folder
+eval_folder = args.eval_folder
 # --- Global Vars --- #
 
 # --- Update Directories --- #
