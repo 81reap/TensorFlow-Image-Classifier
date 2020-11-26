@@ -26,6 +26,8 @@ Example
 ## create_CNN_model.py
 This script will create and test an image classfication model based on a custom Convolutional Neural Network (CNN) model. It will output the modle in multiple useable forms as well as graphs of the traning the the confusiton matrix. The text file contains the class name of each output tensor in order of the tensor.
 
+This script also adds extra meta data to the TFLite model so that it can appropriately be used with MLKit on Android devices.
+
 ``` bash
 Usage
  $ python create_CNN_model.py [version]

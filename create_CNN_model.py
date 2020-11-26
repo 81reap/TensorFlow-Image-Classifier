@@ -33,7 +33,7 @@ MODEL_NAME = "TensorFlow_CNN_[" + args.version + "]"
 
 TEST_FOLDER = args.eval_folder
 TRAIN_FOLDER = args.train_folder
-
+TMP_MODEL = "tmp_max.h5"
 ROOT_DIR = os.getcwd()
 IMG_NAME = MODEL_NAME+"_train.png"
 KERAS_MODEL = MODEL_NAME+".h5"
@@ -203,7 +203,7 @@ model.compile(
 #  This is usefull because the more you train your model, the more likly it is
 #  to overfit the traing data, and in turn decreasing the vaidation accuracy.
 checkpoint = tf.keras.callbacks.ModelCheckpoint(
-    "model.h5", 
+    TMP_MODEL, 
     monitor='val_accuracy', 
     verbose=1, 
     save_best_only=True, 
@@ -236,7 +236,7 @@ history = model.fit(
 
 # --- Create the model files --- #
 # --- Keras Model ---
-model.load_weights('model.h5')
+model.load_weights(TMP_MODEL)
 model.save(KERAS_MODEL)
 
 # --- TFLite Model ---
@@ -254,6 +254,72 @@ with open(LABEL_MODEL, 'w') as f:
     for item in classes:
         f.write("%s\n" % item)
 # --- Create the model files --- #
+
+# --- TensorFlow Lite Model Meta data --- #
+model_meta = _metadata_fb.ModelMetadataT()
+model_meta.name = MODEL_NAME
+model_meta.description = ("Identify different types of plants")
+model_meta.version = MODEL_VERSION
+model_meta.author = "Prayag Bhakar [prayag.bhakar@gmail.com]"
+model_meta.license = ("Revised BSD License"
+                      "https://github.com/PrayagBhakar/TensorFlow-Image-Classifier/blob/master/LICENSE")
+
+# Creates input info.
+input_meta = _metadata_fb.TensorMetadataT()
+input_meta.name = "image"
+input_meta.description = (
+    "Input image to be classified. The expected image is {0} x {1}, with "
+    "three channels (red, blue, and green) per pixel. Each value in the "
+    "tensor is a single byte between 0 and 255.".format(IMAGE_SIZE, IMAGE_SIZE))
+input_meta.content = _metadata_fb.ContentT()
+input_meta.content.contentProperties = _metadata_fb.ImagePropertiesT()
+input_meta.content.contentProperties.colorSpace = (_metadata_fb.ColorSpaceType.RGB)
+input_meta.content.contentPropertiesType = (_metadata_fb.ContentProperties.ImageProperties)
+input_normalization = _metadata_fb.ProcessUnitT()
+input_normalization.optionsType = (_metadata_fb.ProcessUnitOptions.NormalizationOptions)
+input_normalization.options = _metadata_fb.NormalizationOptionsT()
+input_normalization.options.mean = [127.5] # idk what this is
+input_normalization.options.std = [127.5] # idk what this is
+input_meta.processUnits = [input_normalization]
+input_stats = _metadata_fb.StatsT()
+input_stats.max = [255]
+input_stats.min = [0]
+input_meta.stats = input_stats
+
+# Creates output info.
+output_meta = _metadata_fb.TensorMetadataT()
+output_meta.name = "probability"
+output_meta.description = "Probabilities of teh respective plants."
+output_meta.content = _metadata_fb.ContentT()
+output_meta.content.content_properties = _metadata_fb.FeaturePropertiesT()
+output_meta.content.contentPropertiesType = (_metadata_fb.ContentProperties.FeatureProperties)
+output_stats = _metadata_fb.StatsT()
+output_stats.max = [1.0]
+output_stats.min = [0.0]
+output_meta.stats = output_stats
+label_file = _metadata_fb.AssociatedFileT()
+label_file.name = os.path.basename(LABEL_MODEL)
+label_file.description = "Plant Names"
+label_file.type = _metadata_fb.AssociatedFileType.TENSOR_AXIS_LABELS
+output_meta.associatedFiles = [label_file]
+
+# Creates subgraph info.
+subgraph = _metadata_fb.SubGraphMetadataT()
+subgraph.inputTensorMetadata = [input_meta]
+subgraph.outputTensorMetadata = [output_meta]
+model_meta.subgraphMetadata = [subgraph]
+
+b = flatbuffers.Builder(0)
+b.Finish(
+    model_meta.Pack(b),
+    _metadata.MetadataPopulator.METADATA_FILE_IDENTIFIER)
+metadata_buf = b.Output()
+
+populator = _metadata.MetadataPopulator.with_model_file(TFLITE_MODEL)
+populator.load_metadata_buffer(metadata_buf)
+populator.load_associated_files([LABEL_MODEL])
+populator.populate()
+# --- TensorFlow Lite Model Meta data --- #
 
 # --- Model Metrics --- #
 ## 1. Training Accuracy and Loss
