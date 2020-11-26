@@ -31,7 +31,7 @@ train_percent = args.train
 eval_percent = 1 - train_percent
 
 # output square image px size
-edge = parser.size
+edge = args.size
 
 # get all the different folder names
 src_folder = args.source
