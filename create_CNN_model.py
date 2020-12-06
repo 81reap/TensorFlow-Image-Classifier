@@ -10,7 +10,6 @@ import argparse
 import numpy as np
 from tqdm import trange
 import tensorflow as tf
-import tensorflowjs as tfjs
 from tensorflow import lite
 from pandas import DataFrame
 import matplotlib.pyplot as plt
@@ -38,7 +37,6 @@ ROOT_DIR = os.getcwd()
 IMG_NAME = MODEL_NAME+"_train.png"
 KERAS_MODEL = MODEL_NAME+".h5"
 TFLITE_MODEL = MODEL_NAME+".tflite"
-TFJS_MODEL = ROOT_DIR + MODEL_NAME + ".json"
 LABEL_MODEL = MODEL_NAME+".txt"
 CONFUSION_NAME = MODEL_NAME+"_confusion.png"
 # --- Global Vars --- #
@@ -192,8 +190,11 @@ model.summary()
 # --- Train the Model --- #
 # compiles the model to train with with Adam optimizer and measure loss with 
 #  Categorical Crossentropy
+base_learning_rate = 0.0002
+#SGD(momentum=0.9, nesterov=True, lr=base_learning_rate)
+#Adam(lr=base_learning_rate)
 model.compile(
-    tf.keras.optimizers.Adam(lr=0.0001), 
+    tf.keras.optimizers.SGD(momentum=0.9, nesterov=True, lr=base_learning_rate), 
     loss='categorical_crossentropy', 
     metrics=['accuracy']
 )
@@ -245,9 +246,6 @@ converter = lite.TFLiteConverter.from_keras_model(model)
 # converter.target_spec.supported_ops = [lite.OpsSet.TFLITE_BUILTINS]
 tfmodel = converter.convert()
 open (TFLITE_MODEL , "wb").write(tfmodel)
-
-# --- TF.js Model ---
-tfjs.converters.save_keras_model(model, ".")
 
 # --- Labels Model ---
 with open(LABEL_MODEL, 'w') as f:
