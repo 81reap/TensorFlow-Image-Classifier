@@ -1,5 +1,5 @@
 # TensorFlow Image Classifier
-These python scripts help set up a dataset and create a simple TensorFlow Image Classifier. These scripts work best with an Nvida GPU.
+These python scripts help set up a dataset and create a simple TensorFlow Image Classifier. These scripts work best with an Nvida GPU. 
 
 ## dataset_creator.py
 This script is used to create a dataset based on class of your choice. It uses the Bing image downloader package to search up the term and add relevant images to the class.
@@ -33,6 +33,18 @@ Usage
  $ python create_CNN_model.py [version]
 Example
  $ python create_CNN_model.py 1.0
+```
+
+## create_MobileNetV2_model.py
+This script will create and test an image classfication model based on a pretrained MobileNetV2 model. It will output the model in multiple useable forms as well as graphs of the traning the the confusiton matrix. The text file contains the class name of each output tensor in order of the tensor.
+
+This script also adds extra meta data to the TFLite model so that it can appropriately be used with MLKit on Android devices.
+
+``` bash
+Usage
+ $ python create_MobileNetV2_model.py [version]
+Example
+ $ python create_MobileNetV2_model.py 1.0
 ```
 
 # Licence
